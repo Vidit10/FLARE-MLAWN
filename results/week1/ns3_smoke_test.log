@@ -1,0 +1,159 @@
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+Start command:  /home/claude/ns3/ns-3.46/ns3 run "gsoc-nr-rl-based-sched --openGymPort=5552 --simSeed=3002 --ueNum=2 --logging=False --priorityTrafficScenario=0 --simTime=1 --numerology=0 --centralFrequency=4000000000.0 --bandwidth=10000000.0 --totalTxPower=43 --simTag=default --outputDir=./ --enableOfdma=0 --enableLcLevelQos=0 --ueLevelSchedulerType=Ai"
+Started ns3 simulation script, Process Id:  7080
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+Scheduler: ns3::NrMacSchedulerTdmaAi
+AI scheduler is enabled
+Attribute 'RemotePort' is deprecated: Replaced by Remote in ns-3.44.
+Attribute 'RemotePort' is deprecated: Replaced by Remote in ns-3.44.
+Attribute 'RemotePort' is deprecated: Replaced by Remote in ns-3.44.
+Attribute 'RemoteAddress' is deprecated: Replaced by Remote in ns-3.44.
+Attribute 'RemoteAddress' is deprecated: Replaced by Remote in ns-3.44.
+Attribute 'RemoteAddress' is deprecated: Replaced by Remote in ns-3.44.
+Start
+Step:  0
+---obs:  [ 2  5 25  0  2  4 68  0  1  4 68  0]
+Step:  200
+---action:  [1.9067005  0.70655499 1.71223721]
+---obs, reward, done, info:  [ 2  5 25  8  2  4 68  8  1  4 68 11] 0.00025657148216851056 False {}
+Step:  400
+---action:  [0.10764245 1.043956   0.33124598]
+---obs, reward, done, info:  [ 2  5 25 11  2  4 68 11  1  4 68 21] 7.131166057661176e-05 False {}
+Step:  600
+---action:  [1.69596199 0.00210365 0.45397245]
+---obs, reward, done, info:  [ 2  5 25 14  2  4 68 14  1  4 68 32] 3.6470810300670564e-05 False {}
+Step:  800
+---action:  [1.38061484 2.68092412 0.7048501 ]
+---obs, reward, done, info:  [ 2  5 25 16  2  4 68 16  1  4 68 43] 2.419237353024073e-05 False {}
+Step:  1000
+---action:  [2.31455199 0.25568152 2.58035862]
+---obs, reward, done, info:  [ 1  4 68 54  2  5 25 19  2  4 68 19] 1.692442674539052e-05 False {}
+Step:  1200
+---action:  [2.71683295 0.96229267 0.96139731]
+---obs, reward, done, info:  [ 2  5 25 21  2  4 68 21  1  4 68 64] 1.3320279322215356e-05 False {}
+Step:  1400
+---action:  [1.40524189 0.66783512 1.09658516]
+---obs, reward, done, info:  [ 2  5 25 24  2  4 68 24  1  4 68 76] 1.0589457815513015e-05 False {}
+Step:  1600
+---action:  [2.41809557 1.95599816 2.425259  ]
+---obs, reward, done, info:  [ 2  5 25 25  2  4 68 25  1  4 68 87] 9.292526556237135e-06 False {}
+Step:  1800
+---action:  [0.22234533 0.56588877 0.12267981]
+---obs, reward, done, info:  [ 2  5 25 27  2  4 68 27  1  4 68 98] 8.002428330655675e-06 False {}
+Step:  2000
+---action:  [2.51421287 0.82848616 0.02101202]
+---obs, reward, done, info:  [  2   5  25  30   2   4  68  30   1   4  68 108] 6.877447503939038e-06 False {}
+Step:  2200
+---action:  [0.79734786 2.01923593 0.27561099]
+---obs, reward, done, info:  [  2   5  25  32   2   4  68  32   1   4  68 119] 6.168974323372822e-06 False {}
+Step:  2400
+---action:  [2.72540005 2.21737487 0.95144625]
+---obs, reward, done, info:  [  2   5  25  35   2   4  68  35   1   4  68 128] 5.453638095787028e-06 False {}
+Step:  2600
+---action:  [2.7301185  2.57136407 2.03771437]
+---obs, reward, done, info:  [  2   5  25  38   2   4  68  38   1   4  68 139] 4.915764748147922e-06 False {}
+Step:  2800
+---action:  [2.04187616 1.10671827 1.62816776]
+---obs, reward, done, info:  [  2   5  25  40   2   4  68  40   1   4  68 148] 4.553569851850625e-06 False {}
+Step:  3000
+---action:  [0.44621371 1.82710928 2.68146137]
+---obs, reward, done, info:  [  1   4  68 158   2   5  25  43   2   4  68  43] 4.1680887079564855e-06 False {}
+Step:  3200
+---action:  [0.85246923 0.50619952 2.09577322]
+---obs, reward, done, info:  [  2   5  25  46   2   4  68  46   1   4  68 168] 3.835882125713397e-06 False {}
+Step:  3400
+---action:  [0.88342937 1.88712416 1.99670752]
+---obs, reward, done, info:  [  2   5  25  49   2   4  68  49   1   4  68 178] 3.5687612580659334e-06 False {}
+Step:  3600
+---action:  [2.74953027 0.5911403  1.17218969]
+---obs, reward, done, info:  [  2   5  25  51   2   4  68  51   1   4  68 189] 3.3834676287369803e-06 False {}
+Step:  3800
+---action:  [1.7650682  2.4646826  0.96479719]
+---obs, reward, done, info:  [  2   5  25  54   2   4  68  54   1   4  68 200] 3.1738973120809533e-06 False {}
+Step:  4000
+---action:  [1.06622977 0.2161172  1.96972016]
+---obs, reward, done, info:  [  2   5  25  56   2   4  68  56   1   4  68 210] 3.0264282031566836e-06 False {}
+Step:  4200
+---action:  [2.96858366 2.28469838 2.1625837 ]
+---obs, reward, done, info:  [  2   5  25  58   2   4  68  58   1   4  68 220] 2.8990168630116386e-06 False {}
+Step:  4400
+---action:  [1.41195836 2.56360388 2.19788779]
+---obs, reward, done, info:  [  2   5  25  61   2   4  68  61   1   4  68 231] 2.7498899726197124e-06 False {}
+Step:  4600
+---action:  [1.17578462 0.68427987 0.21576378]
+---obs, reward, done, info:  [  2   5  25  63   2   4  68  63   1   4  68 242] 2.647081373652327e-06 False {}
+Step:  4800
+---action:  [0.27612951 1.22600557 1.82196539]
+---obs, reward, done, info:  [  2   5  25  65   2   4  68  65   1   4  68 253] 2.548092197685037e-06 False {}
+Step:  5000
+---action:  [0.04253371 1.17469395 1.26807379]
+---obs, reward, done, info:  [  1   4  68 263   2   5  25  68   2   4  68  68] 2.429021151328925e-06 False {}
+Step:  5200
+---action:  [1.85552215 1.52027948 1.79859358]
+---obs, reward, done, info:  [  2   5  25  70   2   4  68  70   1   4  68 275] 2.3553429855383e-06 False {}
+Step:  5400
+---action:  [2.66650273 2.57849535 2.53281803]
+---obs, reward, done, info:  [  2   5  25  72   2   4  68  72   1   4  68 286] 2.276719442306785e-06 False {}
+Step:  5600
+---action:  [0.17397954 0.72073879 2.39056897]
+---obs, reward, done, info:  [  1   4  68 296   2   5  25  74   2   4  68  74] 2.203948270107503e-06 False {}
+Step:  5800
+---action:  [0.38519718 2.34678979 0.56610099]
+---obs, reward, done, info:  [  2   5  25  76   2   4  68  76   1   4  68 307] 2.1394250779849244e-06 False {}
+Step:  6000
+---action:  [1.66125822 1.75826729 0.52656623]
+---obs, reward, done, info:  [  2   5  25  79   2   4  68  79   1   4  68 317] 2.0581162516464246e-06 False {}
+Step:  6200
+---action:  [2.77949112 2.92674108 1.61301514]
+---obs, reward, done, info:  [  2   5  25  81   2   4  68  81   1   4  68 327] 2.0026923266414087e-06 False {}
+Step:  6400
+---action:  [1.96329883 1.41260172 1.07661181]
+---obs, reward, done, info:  [  2   5  25  83   2   4  68  83   1   4  68 340] 1.9517406144586857e-06 False {}
+Step:  6600
+---action:  [1.07403845 0.56245312 2.95517249]
+---obs, reward, done, info:  [  1   4  68 350   2   5  25  86   2   4  68  86] 1.8792616174323484e-06 False {}
+Step:  6800
+---action:  [1.81123021 1.6120324  2.30267283]
+---obs, reward, done, info:  [  2   5  25  89   2   4  68  89   1   4  68 358] 1.8166059589930228e-06 False {}
+Step:  7000
+---action:  [2.23189759 0.78654766 2.95139407]
+---obs, reward, done, info:  [  2   5  25  92   2   4  68  92   1   4  68 369] 1.7563763776706764e-06 False {}
+Done
+Flow 1 (1.0.0.2:49153 -> 7.0.0.2:1234) proto UDP
+  Flow Type: UE 1 non-GBR
+  Tx Packets: 600
+  Tx Bytes:   1816800
+  TxOffered:  24.224000 Mbps
+  Rx Bytes:   669188
+  Throughput: 8.922507 Mbps
+  Mean delay:  195.533734 ms
+  Mean jitter:  1.660633 ms
+  Rx Packets: 221
+Flow 2 (1.0.0.2:49154 -> 7.0.0.3:1235) proto UDP
+  Flow Type: UE 2 non-GBR
+  Tx Packets: 600
+  Tx Bytes:   1816800
+  TxOffered:  24.224000 Mbps
+  Rx Bytes:   1523084
+  Throughput: 20.307787 Mbps
+  Mean delay:  54.321663 ms
+  Mean jitter:  0.258449 ms
+  Rx Packets: 503
+Flow 3 (1.0.0.2:49155 -> 7.0.0.3:1236) proto UDP
+  Flow Type: UE 2 DC-GBR
+  Tx Packets: 600
+  Tx Bytes:   1816800
+  TxOffered:  24.224000 Mbps
+  Rx Bytes:   1523084
+  Throughput: 20.307787 Mbps
+  Mean delay:  54.321663 ms
+  Mean jitter:  0.258449 ms
+  Rx Packets: 503
+
+
+  Mean flow throughput: 16.512693
+  Mean flow delay: 101.392353

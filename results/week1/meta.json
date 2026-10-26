@@ -1,0 +1,14 @@
+{
+  "seeds": 10,
+  "episode_len": 300,
+  "warmup": 20,
+  "eps_physical_at_0.05": {
+    "sinr_db": 2.5,
+    "buffer_bits": 800000.0,
+    "demand_bps": 1000000.0,
+    "interference_dbm": 2.5,
+    "avg_rate_bps": 2500000.0
+  },
+  "runtime_s": 153.8,
+  "simulator": "rra.env.pysim (Python)"
+}
