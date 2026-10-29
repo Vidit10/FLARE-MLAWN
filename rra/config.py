@@ -71,3 +71,8 @@ class EnvConfig:
     episode_len: int = 300
     avg_rate_window: float = 20.0     # t_w for the moving-average rate
     r_ref_bps: float = 1e6            # reference rate in the utility
+    # Scaling of reported features to [0, 1] (Sec. III-C of the report).
+    # "log": buffer, demand and average rate on a log scale (proposed in week 1,
+    # so that epsilon is a relative change for every slice); "linear": the
+    # min-max scaling written in the mid-semester report.
+    feature_scale: str = "log"

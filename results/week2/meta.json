@@ -1,0 +1,87 @@
+{
+  "ppo_models": [
+    "results/week2/ppo_s0/actor.pt",
+    "results/week2/ppo_s1/actor.pt",
+    "results/week2/ppo_s2/actor.pt"
+  ],
+  "feature_scale": "log",
+  "eps_physical": {
+    "0.02": {
+      "sinr_db": "+/-1 dB",
+      "buffer_bits": "x1.21 (relative)",
+      "demand_bps": "x1.22 (relative)",
+      "interference_dbm": "+/-1 dB",
+      "avg_rate_bps": "x1.24 (relative)"
+    },
+    "0.05": {
+      "sinr_db": "+/-2.5 dB",
+      "buffer_bits": "x1.62 (relative)",
+      "demand_bps": "x1.64 (relative)",
+      "interference_dbm": "+/-2.5 dB",
+      "avg_rate_bps": "x1.72 (relative)"
+    },
+    "0.1": {
+      "sinr_db": "+/-5 dB",
+      "buffer_bits": "x2.63 (relative)",
+      "demand_bps": "x2.69 (relative)",
+      "interference_dbm": "+/-5 dB",
+      "avg_rate_bps": "x2.95 (relative)"
+    }
+  },
+  "ppo_decision_latency_1thread": {
+    "5": {
+      "median_ms": 0.4981360007150215,
+      "p99_ms": 1.5682189710787497
+    },
+    "10": {
+      "median_ms": 0.44295099996816134,
+      "p99_ms": 0.69860887033428
+    },
+    "20": {
+      "median_ms": 0.43036900024162605,
+      "p99_ms": 0.6446728712217008
+    },
+    "30": {
+      "median_ms": 0.4606635002346593,
+      "p99_ms": 0.9307040893145313
+    },
+    "40": {
+      "median_ms": 0.5925510004090029,
+      "p99_ms": 1.8400345000009088
+    }
+  },
+  "runtime_s": 115.7,
+  "simulator": "rra.env.pysim (Python)",
+  "e3_episodes_per_controller": {
+    "EqualShare": 10,
+    "PF": 10,
+    "NeedPrior": 10,
+    "PPO": "10 x 3 seeds = 30"
+  },
+  "e3_eval_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009
+  ],
+  "e4_episodes_per_controller": {
+    "PF": 6,
+    "PPO": "6 x 3 seeds = 18"
+  },
+  "e4_eval_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005
+  ],
+  "e4_note": "E4 was run in parts (--part e4common / e4grad --grad-split 1,2, each --episodes 6) and merged with --part combine.",
+  "latency_note": "Measured on 1 CPU thread of the cloud workspace while one other evaluation process ran on the second core."
+}

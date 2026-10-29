@@ -24,6 +24,7 @@ import numpy as np  # noqa: E402
 
 from rra.attacks import Attacker, eps_in_physical_units  # noqa: E402
 from rra.baselines import EqualShare, ProportionalFair  # noqa: E402
+from rra.config import EnvConfig  # noqa: E402
 from rra.env.pysim import PySimEnv  # noqa: E402
 from rra.runner import run_episode  # noqa: E402
 
@@ -141,9 +142,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=10)
     ap.add_argument("--out", default="results/week1")
+    ap.add_argument("--scale", default="linear", choices=["linear", "log"],
+                    help="feature scaling; week-1 results used linear")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    env = PySimEnv()
+    env = PySimEnv(EnvConfig(feature_scale=a.scale))
     seeds = list(range(a.seeds))
     t0 = time.time()
     r1 = e1(env, seeds)
@@ -163,7 +166,7 @@ def main():
             w.writerow([name] + [f"{v:.4g}" for k in keys for v in d.get(k, (float('nan'),) * 2)])
     meta = {"seeds": a.seeds, "episode_len": env.cfg.episode_len, "warmup": 20,
             "eps_physical_at_0.05": eps_in_physical_units(env.bounds, 0.05),
-            "runtime_s": round(time.time() - t0, 1), "simulator": "rra.env.pysim (Python)"}
+            "feature_scale": a.scale, "runtime_s": round(time.time() - t0, 1), "simulator": "rra.env.pysim (Python)"}
     with open(os.path.join(a.out, "meta.json"), "w") as f:
         json.dump(meta, f, indent=2)
     print(json.dumps(meta, indent=2))

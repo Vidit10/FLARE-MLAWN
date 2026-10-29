@@ -101,7 +101,16 @@ def test_a1_cannot_touch_buffer():
 
 def test_eps_physical():
     phys = eps_in_physical_units(PySimEnv().bounds, 0.05)
-    assert phys["sinr_db"] == pytest.approx(2.5)
+    assert phys["sinr_db"] == "+/-2.5 dB"
+    assert phys["buffer_bits"].startswith("x1.6")      # log scale: ~x1.62
+
+
+@pytest.mark.parametrize("scale", ["log", "linear"])
+def test_scaling_roundtrip_both_modes(scale):
+    from rra.config import EnvConfig
+    env = PySimEnv(EnvConfig(feature_scale=scale))
+    x = np.array([[3.0, 5e4, 2e6, -95.0, 8e6], [-9.0, 0.0, 0.0, -129.0, 1e3]])
+    assert np.allclose(env.bounds.denormalize(env.bounds.normalize(x)), x, rtol=1e-9, atol=1e-6)
 
 
 def test_episode_runs(env):

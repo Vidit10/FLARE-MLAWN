@@ -47,9 +47,16 @@ class PySimEnv(RRAEnv):
         ang = np.deg2rad(30 + 60 * np.arange(6))
         self.neigh_xy = r.isd_m * np.stack([np.cos(ang), np.sin(ang)], axis=1)
         tc = self.cfg.traffic
+        log = (self.cfg.feature_scale == "log")
+        if self.cfg.feature_scale not in ("log", "linear"):
+            raise ValueError(self.cfg.feature_scale)
         self.bounds = NormBounds(
             low=np.array([-10.0, 0.0, 0.0, -130.0, 0.0]),
             high=np.array([40.0, tc.buffer_cap_bits, 20e6, -80.0, 50e6]),
+            # SINR and interference are already in dB; buffer (bit), demand and
+            # average rate (bit/s) go on a log scale with a 1 kbit(/s) reference.
+            log_feat=np.array([False, log, log, False, log]),
+            x0=np.array([1.0, 1e3, 1e3, 1.0, 1e3]),
         )
         self._rng = np.random.default_rng(0)
 

@@ -1,0 +1,6 @@
+PPO models: ['results/week2/ppo_s0/actor.pt', 'results/week2/ppo_s1/actor.pt', 'results/week2/ppo_s2/actor.pt']
+E4 A2 FGSM-KL e=0.02 done 55s
+E4 A2 PGD-KL e=0.02 done 325s
+E4 A2 PGD-util e=0.02 done 547s
+E4 A2 FGSM-KL e=0.05 done 588s
+E4 A2 PGD-KL e=0.05 done 809s

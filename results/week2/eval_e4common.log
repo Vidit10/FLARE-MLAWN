@@ -1,0 +1,7 @@
+PPO models: ['results/week2/ppo_s0/actor.pt', 'results/week2/ppo_s1/actor.pt', 'results/week2/ppo_s2/actor.pt']
+E4 none done 10s
+E4 A2 noise e=0.05 done 22s
+E4 A1 SINR+ k=3 e=0.1 done 33s
+E4 A2 search e=0.02 done 172s
+E4 A2 search e=0.05 done 309s
+E4 A2 search e=0.1 done 446s

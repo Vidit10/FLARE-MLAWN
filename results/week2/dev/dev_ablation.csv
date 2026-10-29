@@ -1,0 +1,11 @@
+run,setup,U,utility,viol_eMBB,viol_URLLC,viol_mMTC,cell_thr_mbps
+PF,proportional fair (reference),20,0.9783,0.037,0.0818,0.047,62.9325
+v_objective,"per-user ratio, no prior, report reward, gamma 0.9",20,0.8339,0.3879,0.0097,0.0,39.8274
+v_marginal,"per-user ratio, no prior, PF-marginal reward, gamma 0.9",20,0.859,0.3058,0.0076,0.0001,42.83
+pr_obj99,"per-user ratio, need prior, report reward, gamma 0.99",20,0.9868,0.0143,0.5549,0.2799,64.4358
+pr_objective,"per-user ratio, need prior, report reward, gamma 0.9",20,0.9742,0.0306,0.0196,0.0434,61.7162
+PF,proportional fair (reference),30,0.965,0.289,0.0525,0.0378,81.9662
+v_objective,"per-user ratio, no prior, report reward, gamma 0.9",30,0.8176,0.616,0.0347,0.0009,51.6975
+v_marginal,"per-user ratio, no prior, PF-marginal reward, gamma 0.9",30,0.8497,0.5703,0.0431,0.0014,57.2029
+pr_obj99,"per-user ratio, need prior, report reward, gamma 0.99",30,0.9715,0.2237,0.9833,0.702,84.9256
+pr_objective,"per-user ratio, need prior, report reward, gamma 0.9",30,0.9614,0.2644,0.2472,0.1001,80.7213

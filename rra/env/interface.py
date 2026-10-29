@@ -18,7 +18,7 @@ Design rules
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 
@@ -38,19 +38,47 @@ N_SLICES = len(SLICES)
 
 @dataclass
 class NormBounds:
-    """Fixed min/max used to scale each reported feature to [0, 1].
+    """Fixed bounds used to scale each reported feature to [0, 1].
 
     The attack budget epsilon is defined on the scaled values, so it has the
-    same meaning for every feature.
+    same meaning for every feature *in scaled units*.
+
+    Two scalings are supported per feature:
+    * linear: s = (x - low) / (high - low)
+    * log:    s = (g(x) - g(low)) / (g(high) - g(low)),  g(x) = log10(1 + x / x0)
+      Used for buffer, demand and average rate, whose values span several
+      orders of magnitude across slices.  An epsilon change is then a
+      *relative* change of the raw value (a multiplicative factor), the same
+      for a 10 kbit URLLC buffer as for a 10 Mbit eMBB buffer.
     """
     low: np.ndarray   # shape (N_REPORTED,)
     high: np.ndarray  # shape (N_REPORTED,)
+    log_feat: Optional[np.ndarray] = None   # (N_REPORTED,) bool; None = all linear
+    x0: Optional[np.ndarray] = None         # (N_REPORTED,) reference values for log features
+
+    def __post_init__(self):
+        n = len(self.low)
+        self.log_feat = np.zeros(n, bool) if self.log_feat is None else np.asarray(self.log_feat, bool)
+        self.x0 = np.ones(n) if self.x0 is None else np.asarray(self.x0, float)
+
+    def _g(self, x):
+        return np.where(self.log_feat, np.log10(1.0 + np.maximum(x, 0.0) / self.x0), x)
+
+    def _g_inv(self, y):
+        yl = np.where(self.log_feat, y, 0.0)          # avoid overflow on linear entries
+        return np.where(self.log_feat, self.x0 * (10.0 ** yl - 1.0), y)
 
     def normalize(self, raw: np.ndarray) -> np.ndarray:
-        return np.clip((raw - self.low) / (self.high - self.low), 0.0, 1.0)
+        lo, hi = self._g(self.low), self._g(self.high)
+        return np.clip((self._g(raw) - lo) / (hi - lo), 0.0, 1.0)
 
     def denormalize(self, norm: np.ndarray) -> np.ndarray:
-        return self.low + np.clip(norm, 0.0, 1.0) * (self.high - self.low)
+        lo, hi = self._g(self.low), self._g(self.high)
+        return self._g_inv(lo + np.clip(norm, 0.0, 1.0) * (hi - lo))
+
+    def scaled_range(self) -> np.ndarray:
+        """Width of each feature's range after the transform (dB or decades)."""
+        return self._g(self.high) - self._g(self.low)
 
 
 @dataclass

@@ -44,10 +44,22 @@ ATTACK_POINTS: Dict[str, Sequence[str]] = {
 }
 
 
-def eps_in_physical_units(bounds: NormBounds, eps: float) -> Dict[str, float]:
-    """What a normalised budget eps means for each feature, in its own unit."""
-    return {f: float(eps * (bounds.high[i] - bounds.low[i]))
-            for i, f in enumerate(REPORTED_FEATURES)}
+def eps_in_physical_units(bounds: NormBounds, eps: float) -> Dict[str, str]:
+    """What a normalised budget eps means for each feature, in its own unit.
+
+    Linear features: an absolute change (dB, bit, bit/s).
+    Log features: a multiplicative factor on (1 + x / x0), i.e. roughly on x
+    itself once x is well above the 1 kbit reference.
+    """
+    out = {}
+    width = bounds.scaled_range()
+    for i, f in enumerate(REPORTED_FEATURES):
+        if bounds.log_feat[i]:
+            out[f] = f"x{10 ** (eps * width[i]):.2f} (relative)"
+        else:
+            unit = {"sinr_db": "dB", "interference_dbm": "dB"}.get(f, "")
+            out[f] = f"+/-{eps * width[i]:.3g} {unit}".strip()
+    return out
 
 
 @dataclass

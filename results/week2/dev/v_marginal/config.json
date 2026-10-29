@@ -1,0 +1,39 @@
+{
+  "ppo": {
+    "total_steps": 204800,
+    "n_envs": 8,
+    "n_steps": 256,
+    "epochs": 10,
+    "minibatch": 256,
+    "lr_actor": 0.0003,
+    "lr_critic": 0.001,
+    "clip": 0.2,
+    "gamma": 0.9,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "hidden": 64,
+    "zeta_p": 0.05,
+    "zeta_n": 0.05,
+    "nu": [
+      0.05,
+      0.01,
+      0.05
+    ],
+    "eta_lambda": 0.05,
+    "lambda_init": 0.5,
+    "train_users": [
+      5,
+      30
+    ],
+    "churn": true,
+    "reward_mode": "marginal",
+    "ratio_mode": "per_user",
+    "r_ref_bps": 1000000.0,
+    "init_precision": 20.0,
+    "seed": 0
+  },
+  "env_feature_scale": "log",
+  "actor_params": 30598,
+  "critic_params": 17732
+}
