@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
+import torch
+
 from .attacks import Attacker
 from .env.interface import RRAEnv
 from .metrics import EpisodeLog
@@ -12,6 +14,10 @@ def run_episode(env: RRAEnv, controller, attacker: Optional[Attacker] = None,
                 seed: int = 0, n_users: Optional[int] = None, steps: Optional[int] = None,
                 warmup: int = 20) -> Dict[str, float]:
     obs = env.reset(seed=seed, n_users=n_users)
+    # Randomized components (the sanitizer's noise, EOT draws) use torch's global
+    # generator; seeding it per episode makes every episode reproducible,
+    # whichever process or worker runs it.
+    torch.manual_seed(20_000 + seed)
     controller.reset()
     if attacker is not None:
         attacker.reset(env, controller, seed=10_000 + seed)

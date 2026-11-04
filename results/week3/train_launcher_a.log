@@ -1,0 +1,8 @@
+[     0s] started adv_rand_s0
+[     0s] started adv_none_s0
+[  2325s] adv_none_s0 finished (exit 0)
+[  2325s] started sappo_rand_s0
+[  3070s] adv_rand_s0 finished (exit 0)
+[  3070s] started sappo_none_s0
+[  5245s] sappo_rand_s0 finished (exit 0)
+[  5305s] sappo_none_s0 finished (exit 0)

@@ -1,3 +1,31 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
 .pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Machine-specific run logs (PowerShell transcripts contain user and machine names;
+# evaluation shards are merged into e6_episodes.csv)
+results/**/windows_run_*.log
+results/**/eval_shard*.log
+results/**/eval_shard*.err
+results/**/e6_episodes_shard*of*.csv
+
+# Scratch output
+*.tmp

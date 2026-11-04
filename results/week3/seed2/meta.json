@@ -1,0 +1,19 @@
+{
+  "simulator": "rra.env.pysim (Python)",
+  "users": 20,
+  "episodes": 8,
+  "eval_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007
+  ],
+  "model_seed": 2,
+  "runtime_s_e6": 4360.5,
+  "runtime_s_zeta": 15.8,
+  "runtime_s_detect": 9.6
+}

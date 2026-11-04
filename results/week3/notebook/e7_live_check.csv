@@ -1,0 +1,7 @@
+,controller,attack,seed,utility_live,flag_rate,utility_stored
+0,PPO + rand. sanitizer,"UAP 0.1, adaptive",1000,0.7286945633244426,0.4424851680949242,0.728695
+1,PPO + rand. sanitizer,"UAP 0.1, adaptive",1001,0.9208295750338948,0.5769230769230769,0.92083
+2,PPO + rand. sanitizer,"GAN 0.1, adaptive",1000,0.7351860236806997,0.39831905075807517,0.735186
+3,PPO + rand. sanitizer,"GAN 0.1, adaptive",1001,0.917421254946145,0.4774247491638796,0.917421
+4,PPO + rand. sanitizer,"GAN 0.1, adaptive + detector-aware",1000,0.8256707147762877,0.0011535926170072512,0.825671
+5,PPO + rand. sanitizer,"GAN 0.1, adaptive + detector-aware",1001,1.0131459924063166,0.019648829431438128,1.01315

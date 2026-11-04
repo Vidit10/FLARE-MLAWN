@@ -24,6 +24,22 @@ Methods
 * ``pgd``  - K signed-gradient steps of size 2.5 eps / K from a random start,
              projected back onto the budget, the mask and [0, 1] after every
              step (Madry et al., ICLR 2018; Algorithm 1 of the report with Q = 1).
+
+Against a defended controller (week 3, rra/defence)
+--------------------------------------------------
+* ``adaptive=True``  - the attacker differentiates through the whole deployed
+                       pipeline (detector gate, sanitizer, actor) via
+                       ``controller.policy_torch``.
+  ``adaptive=False`` - the attacker ignores the defence and attacks the bare
+                       actor (trust fixed to 1, no sanitizer), then sends the
+                       result through the real pipeline.
+* ``eot=Q``          - Expectation over Transformation (Athalye et al., ICML
+                       2018): every gradient is the average over Q fresh draws
+                       of the sanitizer's randomness (report Eq. EOT-PGD).
+* ``stealth=True``   - after the attack, every user whose report the detector
+                       would flag (e > tau) has its perturbation halved, up to
+                       6 times, so the attack stays (mostly) under the
+                       detection threshold.
 """
 from __future__ import annotations
 
@@ -42,6 +58,9 @@ class GradientAttacker(Attacker):
     strategy: str = "pgd"          # fgsm | pgd
     objective: str = "kl"          # kl | util
     steps: int = 10
+    adaptive: bool = True          # differentiate through the defence (if any)
+    eot: int = 1                   # Q noise draws per gradient
+    stealth: bool = False          # keep users under the detection threshold
 
     def __post_init__(self):
         auto_name = not self.name
@@ -50,47 +69,79 @@ class GradientAttacker(Attacker):
             k = "all" if self.k is None else self.k
             self.name = f"{self.point}-{self.strategy}-{self.objective}-eps{self.eps:g}-k{k}"
 
+    def _policy(self):
+        """Function (s, x0, m) -> (PolicyOut, error) that the attacker differentiates."""
+        ctrl = self.controller
+        if self.adaptive and hasattr(ctrl, "policy_torch"):
+            return ctrl.policy_torch
+        actor = ctrl.actor
+
+        def bare(s, x0, m, xi=None):            # defence-unaware: trust 1, raw reports
+            x = torch.cat([s, torch.ones_like(s[..., :1]), x0[..., 6:]], -1) * m.unsqueeze(-1)
+            return actor(x, m), None
+        return bare
+
     def perturb(self, obs: Observation) -> Observation:
         if self.eps <= 0:
             return obs
         if self.strategy not in ("fgsm", "pgd"):
             return super().perturb(obs)
-        actor = self.controller.actor
+        policy = self._policy()
+        Q = max(1, int(self.eot))
         x0, m = obs_features(obs)
-        x0, m = torch.from_numpy(x0)[None], torch.from_numpy(m)[None]
+        x0 = torch.from_numpy(x0)[None].expand(Q, -1, -1)
+        m = torch.from_numpy(m)[None].expand(Q, -1)
         s0 = x0[..., :5].clone()
         emask = torch.from_numpy(self.entry_mask(obs).astype(np.float32))[None]
         with torch.no_grad():
-            clean = actor(x0, m)
+            clean, _ = policy(s0, x0, m)
         g = torch.Generator().manual_seed(int(self._rng.integers(1 << 31)))
-        delta = (torch.rand(s0.shape, generator=g) * 2 - 1) * self.eps * emask
+        delta = (torch.rand(s0[:1].shape, generator=g) * 2 - 1) * self.eps * emask
         if self.strategy == "fgsm":
             steps, alpha = 1, 1.25 * self.eps
         else:
             steps, alpha = self.steps, 2.5 * self.eps / self.steps
         with torch.enable_grad():              # callers may be inside no_grad()
             for _ in range(steps):
-                delta = (torch.clamp(s0 + delta, 0, 1) - s0).detach().requires_grad_(True)
-                x = torch.cat([s0 + delta, x0[..., 5:]], -1) * m.unsqueeze(-1)
-                out = actor(x, m)
+                delta = (torch.clamp(s0[:1] + delta, 0, 1) - s0[:1]).detach().requires_grad_(True)
+                out, _ = policy(s0 + delta, x0, m)
                 if self.objective == "kl":
                     loss = (dir_kl(clean.alpha_prb, out.alpha_prb, out.cmask)
-                            + dir_kl(clean.alpha_pow, out.alpha_pow, out.cmask)).sum()
+                            + dir_kl(clean.alpha_pow, out.alpha_pow, out.cmask)).mean()
                 elif self.objective == "util":
                     prb, pw = out.mean()
-                    loss = -predicted_utility_torch(self.env, obs, prb[0, :-1], pw[0, :-1])
+                    loss = -predicted_utility_torch(self.env, obs, prb[:, :-1], pw[:, :-1]).mean()
                 else:
                     raise ValueError(self.objective)
                 grad, = torch.autograd.grad(loss, delta)
                 delta = delta.detach() + alpha * grad.sign()
                 delta = torch.clamp(delta, -self.eps, self.eps) * emask
-                delta = torch.clamp(s0 + delta, 0, 1) - s0
-        return self.apply_delta(obs, delta[0].numpy().astype(float))
+                delta = torch.clamp(s0[:1] + delta, 0, 1) - s0[:1]
+        delta = delta[0]
+        if self.stealth:
+            delta = self._stay_hidden(s0[0], x0[0], delta)
+        return self.apply_delta(obs, delta.numpy().astype(float))
+
+    def _stay_hidden(self, s0, x0, delta):
+        san = getattr(self.controller, "san", None)
+        if san is None or getattr(self.controller, "mode", "none") == "none":
+            return delta
+        onehot = x0[..., 8:11]
+        with torch.no_grad():
+            for _ in range(6):
+                flagged = san.error(torch.clamp(s0 + delta, 0, 1), onehot) > san.tau
+                if not flagged.any():
+                    break
+                delta = torch.where(flagged.unsqueeze(-1), delta * 0.5, delta)
+        return delta
 
 
 def predicted_utility_torch(env, true_obs: Observation, prb: torch.Tensor,
                             pw: torch.Tensor) -> torch.Tensor:
-    """Differentiable version of hook.predicted_utility (no integer rounding)."""
+    """Differentiable version of hook.predicted_utility (no integer rounding).
+
+    prb, pw: (U,) or (B, U) shares; returns a scalar or (B,) values.
+    """
     r = env.cfg.radio
     rep = torch.from_numpy(true_obs.reported.astype(np.float32))
     act = torch.from_numpy(true_obs.active)
@@ -103,4 +154,5 @@ def predicted_utility_torch(env, true_obs: Observation, prb: torch.Tensor,
     tw = env.cfg.avg_rate_window
     rbar = (1 - 1 / tw) * rep[:, 4] + (bits / env.t_c) / tw
     u = torch.log1p(rbar / env.cfg.r_ref_bps)
-    return u[act].mean()
+    a = act.float()
+    return (u * a).sum(-1) / a.sum().clamp(min=1.0)

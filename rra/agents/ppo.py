@@ -24,7 +24,7 @@ from ..baselines import Controller
 from ..config import EnvConfig
 from ..env.interface import N_SLICES, Action, Observation
 from ..env.pysim import PySimEnv
-from .policy import (Actor, Critic, dir_entropy, dir_log_prob, dir_sample,
+from .policy import (Actor, Critic, dir_entropy, dir_kl, dir_log_prob, dir_sample,
                      gamma_entropy, gamma_log_prob, gamma_sample, n_params,
                      obs_features, shares_from_gamma)
 
@@ -61,6 +61,19 @@ class PPOConfig:
     init_precision: float = 20.0
     prior: str = "need"              # "none" | "need" (see policy.Actor)
     seed: int = 0
+    # ---- robust training (week 3, report F10); defaults = clean training ----
+    init_from: Optional[str] = None  # run directory to start from (actor, critic, lambda)
+    defence: str = "none"            # sanitizer in the training loop: none | det | rand
+    sanitizer_path: Optional[str] = None
+    gate: str = "soft"
+    adv: str = "none"                # none | madry | sappo
+    adv_eps: float = 0.1
+    adv_frac: float = 0.5            # madry: share of environments rolled out under attack
+    adv_steps: int = 5               # K
+    adv_eot: int = 4                 # Q
+    adv_objective: str = "mix"       # kl | util | mix (attacked environments alternate)
+    sappo_kappa: float = 1.0
+    sappo_steps: int = 3
 
 
 class PPOController(Controller):
@@ -70,6 +83,15 @@ class PPOController(Controller):
     def __init__(self, actor: Actor, stochastic: bool = False):
         self.actor = actor
         self.stochastic = stochastic
+
+    def policy_torch(self, s, x0, m, xi=None):
+        """Differentiable policy for scaled reports s (B, U, 5); x0 = obs features.
+
+        Returns (PolicyOut, detection error or None). The undefended actor has
+        no detector, so the error is None.
+        """
+        x = torch.cat([s, x0[..., 5:]], -1) * m.unsqueeze(-1)
+        return self.actor(x, m), None
 
     @torch.no_grad()
     def act(self, obs: Observation) -> Action:
@@ -126,13 +148,29 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
     os.makedirs(out_dir, exist_ok=True)
     torch.manual_seed(cfg.seed)
     rng = np.random.default_rng(cfg.seed)
+    gen = torch.Generator().manual_seed(cfg.seed + 7)
     env_cfg = env_cfg or EnvConfig()
     envs = [PySimEnv(env_cfg) for _ in range(cfg.n_envs)]
     U = envs[0].u_max
     actor, critic = Actor(cfg.hidden, cfg.init_precision, env_cfg, cfg.prior), Critic(cfg.hidden)
+    lam = np.full(N_SLICES, cfg.lambda_init)
+    if cfg.init_from:                  # fine-tune a trained run
+        actor.load_state_dict(torch.load(os.path.join(cfg.init_from, "actor.pt"), map_location="cpu"))
+        critic.load_state_dict(torch.load(os.path.join(cfg.init_from, "critic.pt"), map_location="cpu"))
+        lam = np.load(os.path.join(cfg.init_from, "lambda.npy"))
     opt_a = torch.optim.Adam(actor.parameters(), lr=cfg.lr_actor, eps=1e-5)
     opt_c = torch.optim.Adam(critic.parameters(), lr=cfg.lr_critic, eps=1e-5)
-    lam = np.full(N_SLICES, cfg.lambda_init)
+    san = None
+    if cfg.defence != "none" or cfg.adv != "none":
+        from ..defence.controller import pipeline
+        from ..defence.robust import batch_attack, kl_pgd, mean_kl
+        from ..defence.sanitizer import Sanitizer
+        if cfg.defence != "none":
+            san = Sanitizer.load(cfg.sanitizer_path)
+    n_adv = int(round(cfg.n_envs * cfg.adv_frac)) if cfg.adv == "madry" else 0
+    adv_envs = list(range(cfg.n_envs - n_adv, cfg.n_envs))
+    adv_obj = [("kl" if k % 2 == 0 else "util") if cfg.adv_objective == "mix" else cfg.adv_objective
+               for k in range(n_adv)]
     nu = np.array(cfg.nu)
     with open(os.path.join(out_dir, "config.json"), "w") as f:
         json.dump({"ppo": asdict(cfg), "env_feature_scale": env_cfg.feature_scale,
@@ -151,6 +189,9 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
 
     for it in range(n_iters):
         X = np.zeros((T, N, U, 11), np.float32); M = np.zeros((T, N, U), bool)
+        XC = np.zeros((T, N, U, 11), np.float32)      # clean features: critic input (asymmetric critic)
+        SH = np.zeros((T, N, U, 5), np.float32)       # reports the xApp received (before the sanitizer)
+        ADVF = np.zeros((T, N), bool)
         G = np.zeros((T, N, 1), np.float32)
         A_prb = np.zeros((T, N, U + 1), np.float32); A_pow = np.zeros((T, N, U + 1), np.float32)
         LP = np.zeros((T, N), np.float32)
@@ -163,9 +204,25 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
         kpi = []
         for t in range(T):
             for i in range(N):
-                X[t, i], M[t, i] = obs_features(obs[i])
+                XC[t, i], M[t, i] = obs_features(obs[i])
                 G[t, i, 0] = obs[i].n_active / U
+            SH[t] = XC[t, ..., :5]
+            if n_adv:                    # Madry: perturb the reports of the attacked environments
+                d = batch_attack(actor, san, cfg.defence, cfg.gate, torch.from_numpy(XC[t, adv_envs]),
+                                 torch.from_numpy(M[t, adv_envs]), cfg.adv_eps, cfg.adv_steps,
+                                 cfg.adv_eot, adv_obj, envs[0], [obs[i] for i in adv_envs], gen)
+                SH[t, adv_envs] = np.clip(XC[t, adv_envs, :, :5] + d.numpy(), 0, 1)
+                ADVF[t, adv_envs] = True
+            if san is not None:          # actor input = sanitized reports and trust
+                with torch.no_grad():
+                    st, rho, _ = san(torch.from_numpy(SH[t]), torch.from_numpy(XC[t, ..., 8:11]),
+                                     torch.from_numpy(M[t]), cfg.defence, cfg.gate)
+                X[t] = XC[t]; X[t, ..., :5] = st.numpy(); X[t, ..., 5] = rho.numpy()
+            else:
+                X[t] = XC[t]; X[t, ..., :5] = SH[t]
+            X[t][~M[t]] = 0.0
             xt, mt, gt = torch.from_numpy(X[t]), torch.from_numpy(M[t]), torch.from_numpy(G[t])
+            xct = torch.from_numpy(XC[t])
             with torch.no_grad():
                 out = actor(xt, mt)
                 g1, g2 = gamma_sample(out.alpha_prb, out.cmask), gamma_sample(out.alpha_pow, out.cmask)
@@ -173,7 +230,7 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
                 lp = dir_log_prob(out.alpha_prb, a1, out.cmask) + dir_log_prob(out.alpha_pow, a2, out.cmask)
                 lpc = torch.stack([gamma_log_prob(out.alpha_prb, g1, out.cmask),
                                    gamma_log_prob(out.alpha_pow, g2, out.cmask)], 1)
-                VAL[t] = critic(xt, mt, gt).numpy()
+                VAL[t] = critic(xct, mt, gt).numpy()
             A_prb[t], A_pow[t], LP[t] = a1.numpy(), a2.numpy(), lp.numpy()
             G1[t], G2[t], LPC[t] = g1.numpy(), g2.numpy(), lpc.numpy()
             for i in range(N):
@@ -183,7 +240,7 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
                 R[t, i, 0] = _reward_part(info, cfg, prev_avg)
                 R[t, i, 1:] = _violations(info)
                 present[t, i] = np.isfinite(info.slice_violation)
-                kpi.append([info.utility, info.power_frac, info.prb_frac, *info.slice_violation])
+                kpi.append([info.utility, info.power_frac, info.prb_frac, *info.slice_violation, ADVF[t, i]])
                 if done:
                     DONE[t, i] = True
                     xf, mf = obs_features(nxt)
@@ -212,10 +269,11 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
         # PPO update
         flat = lambda a: torch.from_numpy(a.reshape(T * N, *a.shape[2:]))
         bx, bm, bg = flat(X), flat(M), flat(G)
+        bxc, bsh = flat(XC), flat(SH)
         b1, b2, blp = flat(A_prb), flat(A_pow), flat(LP)
         bg1, bg2, blpc = flat(G1), flat(G2), flat(LPC)
         badv, bret = flat(adv_total.astype(np.float32)), flat(RET.astype(np.float32))
-        stats = {"kl": [], "clipfrac": [], "ent": [], "vloss": []}
+        stats = {"kl": [], "clipfrac": [], "ent": [], "vloss": [], "sa_reg": []}
         for _ in range(cfg.epochs):
             perm = torch.randperm(T * N)
             for s in range(0, T * N, cfg.minibatch):
@@ -241,9 +299,17 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
                                          gamma_entropy(out.alpha_pow, out.cmask)], 1) * cm).sum((1, 2))
                            / ncomp).mean()
                 loss_a = pg - cfg.ent_coef * ent
+                if cfg.adv == "sappo":   # SA-PPO: penalise the worst-case policy change
+                    d = kl_pgd(actor, san, cfg.defence, cfg.gate, bsh[idx], bxc[idx], bm[idx],
+                               out, cfg.adv_eps, cfg.sappo_steps)
+                    o2, _ = pipeline(actor, san, bsh[idx] + d, bxc[idx], bm[idx], cfg.defence, cfg.gate)
+                    ref = type(out)(out.alpha_prb.detach(), out.alpha_pow.detach(), out.cmask)
+                    reg = mean_kl(ref, o2).mean()
+                    loss_a = loss_a + cfg.sappo_kappa * reg
+                    stats["sa_reg"].append(reg.item())
                 opt_a.zero_grad(); loss_a.backward()
                 torch.nn.utils.clip_grad_norm_(actor.parameters(), cfg.max_grad_norm); opt_a.step()
-                v = critic(bx[idx], bm[idx], bg[idx])
+                v = critic(bxc[idx], bm[idx], bg[idx])
                 loss_c = (((v - bret[idx]) / critic.scale) ** 2).mean()
                 opt_c.zero_grad(); loss_c.backward()
                 torch.nn.utils.clip_grad_norm_(critic.parameters(), cfg.max_grad_norm); opt_c.step()
@@ -264,12 +330,15 @@ def train(cfg: PPOConfig, out_dir: str, env_cfg: Optional[EnvConfig] = None,
         lam = np.maximum(0.0, lam + cfg.eta_lambda * (v_hat - nu))
 
         k = np.array(kpi, float)
+        kc = k[k[:, 6] == 0]
         row = {"iter": it + 1, "steps": (it + 1) * T * N, "time_s": round(time.time() - t_start, 1),
-               "utility": k[:, 0].mean(), "power_frac": k[:, 1].mean(), "prb_frac": k[:, 2].mean(),
+               "utility": kc[:, 0].mean(), "power_frac": kc[:, 1].mean(), "prb_frac": kc[:, 2].mean(),
                "viol_eMBB": v_hat[0], "viol_URLLC": v_hat[1], "viol_mMTC": v_hat[2],
                "lambda_eMBB": lam[0], "lambda_URLLC": lam[1], "lambda_mMTC": lam[2],
                "kl": np.mean(stats["kl"]), "clipfrac": np.mean(stats["clipfrac"]),
-               "entropy": np.mean(stats["ent"]), "vloss": np.mean(stats["vloss"])}
+               "entropy": np.mean(stats["ent"]), "vloss": np.mean(stats["vloss"]),
+               "utility_attacked": float(k[k[:, 6] == 1, 0].mean()) if n_adv else float("nan"),
+               "sa_reg": float(np.mean(stats["sa_reg"])) if stats["sa_reg"] else float("nan")}
         log_rows.append(row)
         if (it + 1) % log_every == 0 or it == n_iters - 1:
             print(" ".join(f"{k}={v:.4g}" if isinstance(v, float) else f"{k}={v}" for k, v in row.items()),

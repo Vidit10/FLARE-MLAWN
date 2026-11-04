@@ -1,0 +1,29 @@
+# docker compose up lab      -> notebook server at http://localhost:8888
+# docker compose run --rm tests
+# docker compose run --rm train          (week-2 seeds in parallel, one core each)
+# docker compose run --rm week3          (whole week-3 pipeline: scripts/week3_all.sh)
+# CPU count: RRA_CPUS=8 docker compose up lab   (default 4)
+services:
+  lab:
+    build: .
+    ports: ["127.0.0.1:8888:8888"]
+    cpus: ${RRA_CPUS:-4}
+    environment: { RRA_WORKERS: "${RRA_CPUS:-4}" }
+    volumes: ["./results:/workspace/results", "./notebooks:/workspace/notebooks"]
+  tests:
+    build: .
+    command: python -m pytest -q tests
+    profiles: ["tools"]
+  train:
+    build: .
+    cpus: ${RRA_CPUS:-4}
+    command: python -m experiments.train_seeds --seeds 0 1 2 --jobs ${RRA_CPUS:-4} --out-root results/week2
+    volumes: ["./results:/workspace/results"]
+    profiles: ["tools"]
+  week3:
+    build: .
+    cpus: ${RRA_CPUS:-4}
+    environment: { RRA_WORKERS: "${RRA_CPUS:-4}" }
+    command: bash scripts/week3_all.sh ${RRA_CPUS:-4}
+    volumes: ["./results:/workspace/results"]
+    profiles: ["tools"]

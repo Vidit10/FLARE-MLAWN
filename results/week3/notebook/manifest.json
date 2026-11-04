@@ -1,0 +1,14 @@
+{
+  "simulator": "rra.env.pysim (Python)",
+  "quick": true,
+  "workers": 2,
+  "tests": "33 passed in 3.68s",
+  "e6_live_max_abs_diff": 4.2346538218218654e-06,
+  "e7_live_max_abs_diff": 4.007593683352795e-06,
+  "runtime_s": 114.3,
+  "python": "3.13.18",
+  "torch": "2.15.0+cu132",
+  "numpy": "2.5.3",
+  "cores_available": 2,
+  "created": "2026-11-04 07:59:55"
+}

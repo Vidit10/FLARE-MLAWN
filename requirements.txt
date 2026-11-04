@@ -1,0 +1,11 @@
+# Python simulator, PPO, attacks, evaluation, notebook.
+# torch: the CPU build is enough (the Dockerfile installs it from the CPU index).
+numpy>=1.26
+matplotlib>=3.8
+pandas>=2.0
+torch>=2.2
+pytest>=8.0
+jupyterlab>=4.0
+nbconvert>=7.0
+nbformat>=5.9
+ipykernel>=6.0

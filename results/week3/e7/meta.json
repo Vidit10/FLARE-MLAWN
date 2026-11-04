@@ -1,0 +1,34 @@
+{
+  "simulator": "rra.env.pysim (Python)",
+  "episodes": 8,
+  "model_seed": 0,
+  "eval_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007
+  ],
+  "eps_main": 0.1,
+  "eps_sweep": [
+    0.02,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "users": [
+    5,
+    10,
+    20,
+    40
+  ],
+  "beta_detector_aware": 0.2,
+  "runtime_s_fit": 173.3,
+  "runtime_s_all": 2364.3,
+  "runtime_s_unseen": 42.2,
+  "runtime_s_blind": 13.7,
+  "runtime_s_plot": 0.9
+}

@@ -1,0 +1,19 @@
+{
+  "simulator": "rra.env.pysim (Python)",
+  "episodes": 4,
+  "attack_episodes": 3,
+  "users": 20,
+  "workers": 2,
+  "tests": "23 passed in 3.39s",
+  "runtime_s": 85.4,
+  "python": "3.13.18",
+  "torch": "2.15.0+cu132",
+  "numpy": "2.5.3",
+  "cores_available": 2,
+  "ppo_checkpoints": [
+    "results/week2/ppo_s0/actor.pt",
+    "results/week2/ppo_s1/actor.pt",
+    "results/week2/ppo_s2/actor.pt"
+  ],
+  "created": "2026-11-01 22:51:25"
+}

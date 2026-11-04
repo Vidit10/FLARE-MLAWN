@@ -1,0 +1,7 @@
+controller,attack,episodes,utility,utility_change_pct,utility_change_ci95,any_violation,violating_change_pp,viol_URLLC,flag_rate
+PPO (undefended),slice-mean reports (diagnostic),8,0.94935,-5.15383,1.67078,0.11538,7.16165,0.06883,0.0
+PPO + rand. sanitizer,slice-mean reports (diagnostic),8,0.94986,-5.00746,1.75572,0.12484,8.09364,0.09838,0.1335
+RADAR-style,slice-mean reports (diagnostic),8,0.94669,-5.75672,1.59819,0.13575,8.99445,0.11826,0.10267
+SA-PPO,slice-mean reports (diagnostic),8,0.95875,-4.3996,1.11475,0.09978,4.18633,0.04362,0.0
+Proposed (a): rand. san. + adv. training,slice-mean reports (diagnostic),8,0.95262,-4.94219,1.71435,0.11826,7.66541,0.08381,0.13467
+Proposed (b): rand. san. + SA-PPO,slice-mean reports (diagnostic),8,0.95331,-3.08543,1.44865,0.10031,5.44181,0.01533,0.0592

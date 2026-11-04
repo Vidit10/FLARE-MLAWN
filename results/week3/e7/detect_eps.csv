@@ -1,0 +1,26 @@
+attack,eps,flagged,auc,n_users
+clean (false-positive rate),0,0.005435,,1104
+noise,0.02,0.009964,0.6108,1104
+"PGD-util, defence-unaware",0.02,0.04167,0.8032,1104
+"EOT-PGD-util, adaptive",0.02,0.06703,0.8032,1104
+"UAP, adaptive",0.02,0.03533,0.7824,1104
+"GAN, adaptive",0.02,0.04076,0.8237,1104
+"GAN, adaptive + detector-aware",0.02,0.002717,0.4988,1104
+noise,0.05,0.1621,0.8026,1104
+"PGD-util, defence-unaware",0.05,0.6848,0.957,1104
+"EOT-PGD-util, adaptive",0.05,0.4031,0.939,1104
+"UAP, adaptive",0.05,0.4112,0.9257,1104
+"GAN, adaptive",0.05,0.3859,0.9175,1104
+"GAN, adaptive + detector-aware",0.05,0.002717,0.5229,1104
+noise,0.1,0.5761,0.9195,1104
+"PGD-util, defence-unaware",0.1,0.9792,0.9986,1104
+"EOT-PGD-util, adaptive",0.1,0.6558,0.9525,1104
+"UAP, adaptive",0.1,0.6386,0.9171,1104
+"GAN, adaptive",0.1,0.5897,0.9211,1104
+"GAN, adaptive + detector-aware",0.1,0.002717,0.5473,1104
+noise,0.2,0.8505,0.9738,1104
+"PGD-util, defence-unaware",0.2,0.99,0.9991,1104
+"EOT-PGD-util, adaptive",0.2,0.9592,0.9956,1104
+"UAP, adaptive",0.2,0.7998,0.9182,1104
+"GAN, adaptive",0.2,1,1,1104
+"GAN, adaptive + detector-aware",0.2,0.003623,0.5474,1104

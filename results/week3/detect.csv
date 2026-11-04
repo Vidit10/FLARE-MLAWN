@@ -1,0 +1,16 @@
+attack,eps,auc,flagged,n_users
+clean (false-positive rate),0,nan,0.005435,1104
+noise 0.05,0.05,0.8026,0.1621,1104
+A1 SINR+ 0.05,0.05,0.5122,0.009058,1104
+black-box search 0.05,0.05,0.9016,0.5516,1104
+PGD-KL 0.05 (undefended),0.05,0.8831,0.4348,1104
+PGD-util 0.05 (undefended),0.05,0.957,0.6848,1104
+EOT-PGD-util 0.05 adaptive,0.05,0.9391,0.4185,1104
+EOT-PGD-util 0.05 adaptive + stealth,0.05,0.9047,0.006341,1104
+noise 0.1,0.1,0.9195,0.5761,1104
+A1 SINR+ 0.1,0.1,0.518,0.01087,1104
+black-box search 0.1,0.1,0.9763,0.8415,1104
+PGD-KL 0.1 (undefended),0.1,0.9736,0.8161,1104
+PGD-util 0.1 (undefended),0.1,0.9986,0.9792,1104
+EOT-PGD-util 0.1 adaptive,0.1,0.9545,0.6612,1104
+EOT-PGD-util 0.1 adaptive + stealth,0.1,0.8907,0.007246,1104

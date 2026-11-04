@@ -1,0 +1,8 @@
+fit: 0 (controller, eps) pairs on 2 worker(s)
+suite: 328 episodes on 2 worker(s)
+suite done in 474 s
+eps: 240 episodes on 2 worker(s)
+eps done in 865 s
+users: 288 episodes on 2 worker(s)
+users done in 1014 s
+detect: 24 cases on 2 worker(s)

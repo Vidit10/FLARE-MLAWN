@@ -39,6 +39,7 @@ from rra.attacks import Attacker, GradientAttacker, eps_in_physical_units  # noq
 from rra.baselines import EqualShare, ProportionalFair  # noqa: E402
 from rra.config import EnvConfig  # noqa: E402
 from rra.env.pysim import PySimEnv  # noqa: E402
+from rra.parallel import available_cores, pmap  # noqa: E402
 from rra.runner import run_episode  # noqa: E402
 
 BLUE, ORANGE, AQUA, YELLOW = "#2a78d6", "#eb6834", "#1baf7a", "#eda100"
@@ -74,15 +75,20 @@ def objective(row, zeta=0.05):
     return row["utility"] - zeta * row["power_frac"] - zeta * row["prb_frac"]
 
 
-def run_many(env, make_ctrl_list, att_factory, eval_seeds, U):
-    rows = []
-    for ctrl in make_ctrl_list:
-        for s in eval_seeds:
+def run_many(env, make_ctrl_list, att_factory, eval_seeds, U, workers=None):
+    """One episode per (controller, seed); rows are ordered controller-major.
+
+    workers > 1 runs the episodes on several cores (rra.parallel); the results
+    are identical to a serial run.
+    """
+    def job(ctrl, s):
+        def f():
             att = att_factory() if att_factory else None
             r = run_episode(env, ctrl, att, seed=s, n_users=U)
             r["objective"] = objective(r)
-            rows.append(r)
-    return rows
+            return r
+        return f
+    return pmap([job(c, s) for c in make_ctrl_list for s in eval_seeds], workers)
 
 
 def summarise(rows):
@@ -96,10 +102,14 @@ def main():
     ap.add_argument("--out", default="results/week2")
     ap.add_argument("--part", default="all", choices=["all", "e3", "e4common", "e4grad", "combine", "replot"],
                     help="run one part (parts can run in parallel); 'combine' merges E4 parts")
+    ap.add_argument("--workers", type=int, default=None,
+                    help="CPU cores for evaluation episodes (default: $RRA_WORKERS or 1)")
     ap.add_argument("--grad-split", type=int, default=0, choices=[0, 1, 2],
                     help="e4grad only: 1 = first half of the gradient attacks, 2 = second half")
     a = ap.parse_args()
     torch.set_num_threads(1)
+    if a.workers is not None:
+        os.environ["RRA_WORKERS"] = str(a.workers)
     env = PySimEnv(EnvConfig(feature_scale="log"))
     eval_seeds = list(range(1000, 1000 + a.episodes))
     actor_paths = sorted(glob.glob(os.path.join(a.out, "ppo_s*", "actor.pt")))

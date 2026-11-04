@@ -1,0 +1,39 @@
+{
+  "config": {
+    "latent": 4,
+    "n_heads": 5,
+    "sigma": 0.1,
+    "alpha": 0.01,
+    "temp_frac": 0.1,
+    "cond_slice": true,
+    "train_eps": 0.1,
+    "epochs_ae": 60,
+    "epochs_den": 40,
+    "batch": 512,
+    "lr": 0.003,
+    "weight_decay": 1e-05,
+    "seed": 0
+  },
+  "tau": 0.0059560928493738174,
+  "n_reports": 95501,
+  "split": {
+    "train": 66850,
+    "cal": 14325,
+    "test": 14326
+  },
+  "fpr_test": 0.011168504816417702,
+  "err_mean": {
+    "train": 0.0009066281490959227,
+    "cal": 0.0009036877891048789,
+    "test": 0.0009092524996958673
+  },
+  "denoise_sq_err": {
+    "perturbed_input": 0.01497686468064785,
+    "rand": 0.010253296233713627,
+    "det": 0.008357511833310127
+  },
+  "users": [
+    5,
+    20
+  ]
+}
