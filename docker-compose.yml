@@ -2,6 +2,8 @@
 # docker compose run --rm tests
 # docker compose run --rm train          (week-2 seeds in parallel, one core each)
 # docker compose run --rm week3          (whole week-3 pipeline: scripts/week3_all.sh)
+# docker compose run --rm week4          (week-4 federation and observer runs: scripts/week4_all.sh)
+# docker compose run --rm week5          (week-5 scaling and comparison runs: scripts/week5_all.sh)
 # CPU count: RRA_CPUS=8 docker compose up lab   (default 4)
 services:
   lab:
@@ -25,5 +27,17 @@ services:
     cpus: ${RRA_CPUS:-4}
     environment: { RRA_WORKERS: "${RRA_CPUS:-4}" }
     command: bash scripts/week3_all.sh ${RRA_CPUS:-4}
+    volumes: ["./results:/workspace/results"]
+    profiles: ["tools"]
+  week4:
+    build: .
+    cpus: ${RRA_CPUS:-4}
+    command: bash scripts/week4_all.sh ${RRA_CPUS:-4}
+    volumes: ["./results:/workspace/results"]
+    profiles: ["tools"]
+  week5:
+    build: .
+    cpus: ${RRA_CPUS:-4}
+    command: bash scripts/week5_all.sh ${RRA_CPUS:-4}
     volumes: ["./results:/workspace/results"]
     profiles: ["tools"]

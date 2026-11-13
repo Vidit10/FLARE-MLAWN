@@ -29,3 +29,6 @@ results/**/e6_episodes_shard*of*.csv
 
 # Scratch output
 *.tmp
+
+# Week-5 set-up check output
+results/week5_smoke/

@@ -1,0 +1,41 @@
+library: cell 0 (eMBB hot spot) 25 iterations, 318 s
+library: cell 1 (URLLC factory) 25 iterations, 346 s
+library: cell 2 (IoT district) 25 iterations, 357 s
+library: cell 3 (mixed urban) 25 iterations, 332 s
+library: cell 4 (light suburban) 25 iterations, 335 s
+library: cell 5 (stadium) 25 iterations, 353 s
+library: cell 6 (campus) 25 iterations, 351 s
+library: cell 7 (industrial IoT) 25 iterations, 388 s
+classify: calibrated f_odd 0.049, d_change 0.559
+classify: cell 0 done
+classify: cell 1 done
+classify: cell 2 done
+classify: cell 3 done
+classify: cell 4 done
+classify: cell 5 done
+classify: cell 6 done
+classify: cell 7 done
+decision         attack  no change  shift  unclear
+kind                                              
+attack               21          3      0        0
+no change             0          8      0        0
+shift                 2         17     37        0
+stealthy attack       2          5      0        1
+adapt: light suburban -> stadium: keep current policy (97 s)
+adapt: light suburban -> stadium: reuse library policy (97 s)
+adapt: light suburban -> stadium: from scratch (140 s)
+adapt: light suburban -> stadium: meta-learned start (95 s)
+adapt: URLLC factory -> eMBB hot spot: keep current policy (93 s)
+adapt: URLLC factory -> eMBB hot spot: reuse library policy (93 s)
+adapt: URLLC factory -> eMBB hot spot: from scratch (138 s)
+adapt: URLLC factory -> eMBB hot spot: meta-learned start (94 s)
+adapt: IoT district -> campus: keep current policy (94 s)
+adapt: IoT district -> campus: reuse library policy (95 s)
+adapt: IoT district -> campus: from scratch (147 s)
+adapt: IoT district -> campus: meta-learned start (98 s)
+adapt: mixed urban -> industrial IoT: keep current policy (95 s)
+adapt: mixed urban -> industrial IoT: reuse library policy (97 s)
+adapt: mixed urban -> industrial IoT: from scratch (145 s)
+adapt: mixed urban -> industrial IoT: meta-learned start (96 s)
+retrain: window 6: shadow test {'live': 0.6346291473439757, 'candidate': 0.6346291473439757, 'faulty candidate': 0.5523132999028288}
+done in 6714 s

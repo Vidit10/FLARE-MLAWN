@@ -1,0 +1,16 @@
+[
+  {
+    "window": 6,
+    "event": "retrained in twin",
+    "twin_s": 305.4,
+    "shadow_J_live": 0.7027614892990348,
+    "shadow_J_candidate": 0.6842576659864568,
+    "shadow_J_faulty candidate": 0.6826915120622251,
+    "deploy_candidate": false,
+    "deploy_faulty": false
+  },
+  {
+    "window": 20,
+    "event": "rolled back"
+  }
+]

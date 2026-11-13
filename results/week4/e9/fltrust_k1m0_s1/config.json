@@ -1,0 +1,197 @@
+{
+  "args": {
+    "exp": "e9",
+    "agg": "fltrust",
+    "init": "pretrained",
+    "deceived": 1,
+    "malicious": 0,
+    "eps": 0.1,
+    "mal_scale": null,
+    "seed": 1,
+    "rounds": 20,
+    "iters": 2,
+    "eval_every": 10,
+    "eval_episodes": 4,
+    "beta": null,
+    "no_trust_weighting": false,
+    "save_models": false,
+    "out_root": "results/week4"
+  },
+  "local": {
+    "n_envs": 8,
+    "n_steps": 256,
+    "epochs": 4,
+    "minibatch": 256,
+    "lr_actor": 0.0001,
+    "lr_critic": 0.0005,
+    "clip": 0.1,
+    "target_kl": 0.02,
+    "gamma": 0.9,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.001,
+    "max_grad_norm": 0.5,
+    "zeta_p": 0.05,
+    "zeta_n": 0.05,
+    "nu": [
+      0.05,
+      0.01,
+      0.05
+    ],
+    "eta_lambda": 0.05,
+    "r_ref_bps": 1000000.0,
+    "reward_mode": "objective",
+    "trust_weighting": true,
+    "low_trust": 0.2,
+    "mode": "rand",
+    "gate": "soft",
+    "malicious_scale": 8.0
+  },
+  "cells": [
+    {
+      "name": "eMBB hot spot",
+      "slice_mix": [
+        0.7,
+        0.15,
+        0.15
+      ],
+      "users": [
+        15,
+        30
+      ],
+      "neighbour_load": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "name": "URLLC factory",
+      "slice_mix": [
+        0.15,
+        0.7,
+        0.15
+      ],
+      "users": [
+        5,
+        20
+      ],
+      "neighbour_load": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "name": "IoT district",
+      "slice_mix": [
+        0.15,
+        0.15,
+        0.7
+      ],
+      "users": [
+        15,
+        35
+      ],
+      "neighbour_load": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "name": "mixed urban",
+      "slice_mix": [
+        0.4,
+        0.3,
+        0.3
+      ],
+      "users": [
+        5,
+        30
+      ],
+      "neighbour_load": [
+        0.3,
+        0.8
+      ]
+    },
+    {
+      "name": "light suburban",
+      "slice_mix": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "users": [
+        3,
+        12
+      ],
+      "neighbour_load": [
+        0.1,
+        0.4
+      ]
+    },
+    {
+      "name": "stadium",
+      "slice_mix": [
+        0.6,
+        0.3,
+        0.1
+      ],
+      "users": [
+        25,
+        40
+      ],
+      "neighbour_load": [
+        0.6,
+        0.9
+      ]
+    },
+    {
+      "name": "campus",
+      "slice_mix": [
+        0.35,
+        0.45,
+        0.2
+      ],
+      "users": [
+        8,
+        25
+      ],
+      "neighbour_load": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "name": "industrial IoT",
+      "slice_mix": [
+        0.1,
+        0.4,
+        0.5
+      ],
+      "users": [
+        10,
+        30
+      ],
+      "neighbour_load": [
+        0.4,
+        0.8
+      ]
+    }
+  ],
+  "deceived": [
+    1
+  ],
+  "malicious": [],
+  "beta": 1.3916703919511102,
+  "mmd_noise": [
+    0.09979410432666759,
+    0.174216190883846,
+    0.06616796488733459,
+    0.1251891612239321,
+    0.08920124690634092,
+    0.09933073677492538,
+    0.09943329450824152,
+    0.1277039844629175
+  ],
+  "shared_params": 9216,
+  "bytes_per_round_per_cell": 36864,
+  "runtime_s": 2986.9
+}
